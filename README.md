@@ -9,6 +9,7 @@
 Требования:
 1. Источником настраиваемых пользователем параметров является
 конфигурационный файл формата CSV.
+<img width="725" height="67" alt="image" src="https://github.com/user-attachments/assets/dc75f640-aa92-4b28-98d1-b9fba126a27d" />
 2. К настраиваемым параметрам относятся:
 – Имя анализируемого пакета.
 – URL-адрес репозитория или путь к файлу тестового репозитория.
@@ -24,7 +25,7 @@
 оформленным коммитом.
 
 Результат вывода первого этапа:
-<img width="1328" height="600" alt="image" src="https://github.com/user-attachments/assets/01559dd7-3ff3-4afc-be47-61bb8b9359b3" />
+<img width="1304" height="555" alt="image" src="https://github.com/user-attachments/assets/3ad2aa43-8458-478a-ae44-1a52abf8e682" />
 
 Этап 2. Сбор данных
 
