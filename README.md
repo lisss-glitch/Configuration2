@@ -66,7 +66,8 @@ ValueError: Недопустимый режим ASCII
 Все файлы готовы для коммита в Git репозиторий
 
 Результат вывода первого этапа:
-<img width="1416" height="575" alt="image" src="https://github.com/user-attachments/assets/073b9835-cea9-41f8-a433-07ca8366fa4e" />
+<img width="633" height="294" alt="image" src="https://github.com/user-attachments/assets/d5e6f785-a46f-421f-9046-ed8c5be4f386" />
+
 
 Этап 2. Сбор данных
 
