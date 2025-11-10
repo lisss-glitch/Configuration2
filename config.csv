@@ -1,0 +1,3 @@
+package_name,package_version,output_filename,ascii_tree_mode,max_depth,repository_url,test_mode
+serde,1.0.197,dependency_graph.png,enabled,3,https://crates.io/crates/serde,false
+
