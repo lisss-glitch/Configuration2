@@ -12,8 +12,11 @@ class ApplicationCore:
     def __init__(self):
         # Импорт парсера конфигурации (импорт внутри метода для избежания циклических зависимостей)
         from config import ConfigurationParser
+        from dependency_analyzer import DependencyAnalyzer
         # Создание экземпляра парсера конфигурации
         self.parser = ConfigurationParser()
+        # Сохранение ссылки на DependencyAnalyzer
+        self.DependencyAnalyzer = DependencyAnalyzer
         # Инициализация переменной для хранения настроек (пока пустая)
         self.settings = None
 
@@ -98,6 +101,7 @@ class ApplicationCore:
 
         # Вывод заголовка конфигурации
         print("ТЕКУЩАЯ КОНФИГУРАЦИЯ СИСТЕМЫ")
+        print()
 
         # Словарь для преобразования технических имен в читаемые описания
         display_map = {
@@ -110,14 +114,36 @@ class ApplicationCore:
             'test_mode': 'Режим тестирования'
         }
 
-        # Цикл по всем элементам словаря для отображения
+        # Выводим таблицу с разделителями как в примере
         for key, description in display_map.items():
             # Получение значения или заглушки если значение отсутствует
             value = self.settings.get(key, 'Не указано')
-            # Форматированный вывод параметра
-            print(f"  {description:<25} : {value}")
+            # Форматированный вывод параметра в табличном формате
+            print(f"| {description:<25} | : {str(value):<15} |")
 
-        # Закрывающая линия
+        print()
+
+    def execute_dependency_analysis(self):
+        """Выполняет анализ зависимостей"""
+        try:
+            # Создаем анализатор зависимостей
+            analyzer = self.DependencyAnalyzer(
+                package_name=self.settings['package_name'],
+                package_version=self.settings['package_version'],
+                repository_url=self.settings['repository_url']
+            )
+
+            # Выполняем анализ
+            dependencies = analyzer.analyze_dependencies()
+
+            # Выводим результаты
+            analyzer.display_dependencies()
+
+            return True
+
+        except Exception as e:
+            print(f"Ошибка при выполнении анализа зависимостей: {e}")
+            return False
 
     # Основной метод выполнения приложения
     def execute_application(self):
@@ -143,6 +169,12 @@ class ApplicationCore:
 
         # Отображение текущей конфигурации
         self.display_current_configuration()
+
+        # Выполнение анализа зависимостей
+        print("\nВЫПОЛНЕНИЕ АНАЛИЗА ЗАВИСИМОСТЕЙ")
+
+        if not self.execute_dependency_analysis():
+            return 1  # Код ошибки при неудачном анализе
 
         # Успешное завершение работы
         return 0
