@@ -115,17 +115,125 @@ python main.py --settings-file deep_config.csv
 
 Этап 2. Сбор данных
 
-Цель: реализовать основную логику получения данных о зависимостях для их
-дальнейшего анализа и визуализации. Запрещено пользоваться менеджерами
-пакетов и сторонними библиотеками для получения информации о зависимостях
-пакетов.
-Требования:
-1. Использовать формат пакетов Rust (Cargo).
-2. Информацию необходимо получить для заданной пользователем версии
-пакета.
-3. Извлечь информацию о прямых зависимостях заданного пользователем
-пакета, используя URL-адрес репозитория.
-4. (только для этого этапа) Вывести на экран все прямые зависимости
-заданного пользователем пакета.
-5. Результат выполнения этапа сохранить в репозиторий стандартно
-оформленным коммитом.
+1. Описание всех функций и настроек.
+Описание всех функций и настроек
+Модуль config.py
+Класс SettingsValidator
+Валидатор параметров конфигурации с методами:
+
+check_package_name(name) - проверяет корректность имени пакета Rust
+
+check_version(version) - валидирует версию пакета Cargo
+
+check_output_file(filename) - проверяет имя и формат выходного файла
+
+check_ascii_mode(mode) - валидирует режим ASCII-дерева
+
+check_depth(depth) - проверяет глубину анализа зависимостей
+
+check_repository_url(url) - валидирует URL репозитория (crates.io)
+
+check_test_mode(mode) - проверяет режим тестирования
+
+Класс ConfigurationParser
+Парсер конфигурационных файлов с методами:
+
+parse_configuration(file_path) - основной метод парсинга конфигурации
+
+_verify_file_existence(path) - проверяет наличие файла конфигурации
+
+_extract_config_data(path) - извлекает данные из CSV файла
+
+_validate_config_row(row) - проверяет наличие обязательных полей
+
+_process_config_values(raw_data) - обрабатывает и валидирует значения
+
+Модуль dependency_analyzer.py
+Класс DependencyAnalyzer
+Основной анализатор зависимостей Rust с методами:
+
+__init__(package_name, package_version, repository_url) - инициализация анализатора
+
+extract_dependencies_from_cargo_toml(content) - извлекает зависимости из JSON API crates.io
+
+fetch_cargo_toml_from_github() - получает информацию о пакете из crates.io API
+
+analyze_dependencies() - основной метод анализа зависимостей
+
+display_dependencies() - отображает найденные зависимости в структурированном виде
+
+Модуль cli.py
+Класс ApplicationCore
+Основной класс приложения с расширенными методами:
+
+process_arguments() - обрабатывает аргументы командной строки
+
+initialize_settings(config_path) - инициализирует настройки приложения
+
+perform_validation() - выполняет дополнительную валидацию
+
+display_current_configuration() - отображает текущую конфигурацию
+
+execute_dependency_analysis() - выполняет анализ зависимостей
+
+execute_application() - запускает основную логику приложения
+
+2. Команды для сборки проекта и запуска тестов
+
+Установка зависимостей
+# Пока зависимости не указаны, но при их добавлении:
+pip install -r requirements.txt
+
+Запуск приложения
+# Базовый запуск с конфигурацией по умолчанию
+python main.py
+
+# Запуск с указанием файла конфигурации
+python main.py --settings-file my_config.csv
+
+# Запуск в режиме проверки конфигурации (без анализа)
+python main.py --verify
+
+# Запуск с пользовательской конфигурацией
+python main.py --settings-file custom_config.csv --verify
+
+Запуск тестов
+# Для запуска тестов (когда они будут добавлены)
+python -m pytest tests/
+
+# Запуск с покрытием кода
+python -m pytest --cov=.
+
+# Запуск конкретного тестового модуля
+python -m pytest tests/test_dependency_analyzer.py -v
+
+Прямой запуск анализатора зависимостей
+# Прямой запуск анализатора (для разработки)
+python dependency_analyzer.py
+
+3. Примеры использования
+Пример 1: Анализ зависимостей пакета serde
+config.csv:
+<img width="979" height="63" alt="image" src="https://github.com/user-attachments/assets/4c4a0bdd-b951-426c-892c-8c5e8ac86b41" />
+Запуск:
+python main.py
+
+Ожидаемый вывод:
+<img width="830" height="833" alt="image" src="https://github.com/user-attachments/assets/66c12a46-a569-4b67-919a-2aa672f7dc07" />
+
+Пример 2: Проверка конфигурации без выполнения анализа
+python main.py --verify --settings-file config.csv
+
+Ожидаемый вывод:
+<img width="427" height="53" alt="image" src="https://github.com/user-attachments/assets/e10c62ee-3cc3-4051-9fab-704f833019f5" />
+
+Пример 3: Анализ пакета requests с демонстрационными зависимостями
+requests_config.csv:
+package_name,package_version,output_filename,ascii_tree_mode,max_depth,repository_url,test_mode
+requests,1.0.0,deps_analysis.svg,disabled,2,https://crates.io/crates/requests,false
+
+Запуск:
+python main.py --settings-file requests_config.csv
+
+Ожидаемый вывод:
+<img width="452" height="390" alt="image" src="https://github.com/user-attachments/assets/ec20f513-6859-4d72-a1b0-95568c435ba0" />
