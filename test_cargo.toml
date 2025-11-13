@@ -1,0 +1,8 @@
+[package]
+name = "test_package"
+version = "0.1.0"
+
+[dependencies]
+serde = "1.0"
+tokio = "1.0"
+reqwest = "0.11"

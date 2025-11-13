@@ -1,0 +1,8 @@
+parameter,value
+package_name,this-package-does-not-exist-12345
+repository_url,https://crates.io/api/v1/crates/this-package-does-not-exist-12345
+test_repo_mode,false
+package_version,1.0.0
+output_image,error_graph.png
+ascii_tree,false
+max_depth,3

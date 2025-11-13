@@ -1,0 +1,8 @@
+parameter,value
+package_name,serde
+repository_url,https://crates.io/api/v1/crates/serde
+test_repo_mode,false
+package_version,1.0.0
+output_image,dependency_graph.png
+ascii_tree,false
+max_depth,3

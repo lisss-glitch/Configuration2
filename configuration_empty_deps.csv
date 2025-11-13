@@ -1,0 +1,8 @@
+parameter,value
+package_name,empty_package
+repository_url,test_empty_cargo.toml
+test_repo_mode,true
+package_version,0.1.0
+output_image,empty_graph.png
+ascii_tree,true
+max_depth,3
