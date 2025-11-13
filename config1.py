@@ -1,0 +1,150 @@
+import csv  # импорт модуля для работы с CSV файлами
+import sys  # импорт модуля для работы с аргументами командной строки
+import os  # импорт модуля для работы с файловой системой
+
+
+class ConfigValidator:
+    def __init__(self):
+        self.required_params = [  # список обязательных параметров конфигурации
+            "package_name",
+            "repository_url",
+            "test_repo_mode",
+            "package_version",
+            "output_image",
+            "ascii_tree",
+            "max_depth"
+        ]
+
+    def validate_package_name(self, value):
+        if not value.strip():  # проверка что имя пакета не пустое
+            return "Имя пакета не может быть пустым"
+        return None  # возврат None если ошибок нет
+
+    def validate_repository_url(self, value):
+        if not value.strip():  # проверка что URL репозитория не пустой
+            return "URL репозитория не может быть пустым"
+        return None  # возврат None если ошибок нет
+
+    def validate_test_repo_mode(self, value):
+        normalized_value = value.lower()  # приведение значения к нижнему регистру для сравнения
+        if normalized_value not in ["true", "false"]:  # проверка допустимых значений
+            return "test_repo_mode должен быть 'true' или 'false'"
+        return None  # возврат None если ошибок нет
+
+    def validate_package_version(self, value):
+        if not value.strip():  # проверка что версия пакета не пустая
+            return "Версия пакета не может быть пустой"
+        return None  # возврат None если ошибок нет
+
+    def validate_output_image(self, value):
+        if not value.strip():  # проверка что имя файла изображения не пустое
+            return "Имя выходного файла изображения не может быть пустым"
+
+        forbidden_chars = ['/', '\\', ':', '*', '?', '"', '<', '>', '|']  # список запрещенных символов в имени файла
+        if any(char in value for char in forbidden_chars):  # проверка наличия запрещенных символов
+            return "Имя файла содержит недопустимые символы"
+
+        return None  # возврат None если ошибок нет
+
+    def validate_ascii_tree(self, value):
+        normalized_value = value.lower()  # приведение значения к нижнему регистру для сравнения
+        if normalized_value not in ["true", "false"]:  # проверка допустимых значений
+            return "ascii_tree должен быть 'true' или 'false'"
+        return None  # возврат None если ошибок нет
+
+    def validate_max_depth(self, value):
+        try:
+            depth = int(value)  # попытка преобразовать значение в целое число
+            if depth <= 0:  # проверка что глубина положительная
+                return "max_depth должен быть положительным целым числом"
+        except ValueError:  # обработка ошибки преобразования в число
+            return "max_depth должен быть целым числом"
+        return None  # возврат None если ошибок нет
+
+
+def read_config_file(file_path):
+    if not os.path.exists(file_path):  # проверка существования файла
+        print(f"Ошибка: Конфигурационный файл {file_path} не найден")  # сообщение об ошибке
+        return None  # возврат None если файл не найден
+
+    config = {}  # создание пустого словаря для хранения конфигурации
+    try:
+        with open(file_path, 'r', encoding='utf-8') as file:  # открытие файла для чтения
+            reader = csv.DictReader(file)  # создание CSV ридера с использованием DictReader
+
+            for row in reader:  # итерация по строкам CSV файла
+                param_name = row.get('parameter', '').strip()  # получение имени параметра из колонки 'parameter'
+                param_value = row.get('value', '').strip()  # получение значения параметра из колонки 'value'
+
+                if param_name:  # проверка что имя параметра не пустое
+                    config[param_name] = param_value  # добавление параметра в словарь конфигурации
+
+        return config  # возврат словаря с конфигурацией
+
+    except Exception as e:  # обработка любых исключений при чтении файла
+        print(f"Ошибка чтения конфигурационного файла: {e}")  # вывод сообщения об ошибке
+        return None  # возврат None при ошибке
+
+
+def validate_config(config, validator):
+    errors = []  # создание пустого списка для хранения ошибок
+
+    # Проверка отсутствующих параметров
+    for param in validator.required_params:  # итерация по обязательным параметрам
+        if param not in config:  # проверка наличия параметра в конфигурации
+            errors.append(f"Отсутствует обязательный параметр: {param}")  # добавление ошибки в список
+
+    # Валидация каждого параметра
+    validation_methods = {  # словарь методов валидации для каждого параметра
+        "package_name": validator.validate_package_name,
+        "repository_url": validator.validate_repository_url,
+        "test_repo_mode": validator.validate_test_repo_mode,
+        "package_version": validator.validate_package_version,
+        "output_image": validator.validate_output_image,
+        "ascii_tree": validator.validate_ascii_tree,
+        "max_depth": validator.validate_max_depth
+    }
+
+    for param_name, validation_func in validation_methods.items():  # итерация по методам валидации
+        if param_name in config:  # проверка что параметр присутствует в конфигурации
+            error = validation_func(config[param_name])  # вызов метода валидации для параметра
+            if error:  # проверка наличия ошибки валидации
+                errors.append(f"{param_name}: {error}")  # добавление ошибки в список
+
+    return errors  # возврат списка ошибок
+
+
+def print_config(config):
+    print("Параметры конфигурации:")  # заголовок для вывода конфигурации
+    for param, value in config.items():  # итерация по всем параметрам конфигурации
+        print(f"  {param}: {value}")  # вывод имени параметра и его значения
+
+
+def main():
+    # Использование config.csv по умолчанию, если аргумент не предоставлен
+    if len(sys.argv) > 1:  # проверка наличия аргументов командной строки
+        config_file = sys.argv[1]  # использование первого аргумента как имени файла конфигурации
+    else:
+        config_file = "config.csv"  # использование имени файла по умолчанию
+        print(f"Используется конфигурационный файл по умолчанию: {config_file}")  # сообщение о использовании файла по умолчанию
+
+    validator = ConfigValidator()  # создание экземпляра валидатора конфигурации
+
+    config = read_config_file(config_file)  # чтение конфигурационного файла
+    if config is None:  # проверка что конфигурация не была прочитана
+        sys.exit(1)  # завершение программы с кодом ошибки
+
+    errors = validate_config(config, validator)  # валидация конфигурации
+
+    if errors:  # проверка наличия ошибок валидации
+        print("Ошибки конфигурации:")  # заголовок для вывода ошибок
+        for error in errors:  # итерация по списку ошибок
+            print(f"  - {error}")  # вывод каждой ошибки
+        sys.exit(1)  # завершение программы с кодом ошибки
+
+    print_config(config)  # вывод всех параметров конфигурации
+    print("Конфигурация действительна")  # сообщение о успешной валидации
+
+
+if __name__ == "__main__":
+    main()  # вызов основной функции при запуске скрипта напрямую
