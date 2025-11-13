@@ -33,41 +33,42 @@
 
 - package_name - 	Имя анализируемого пакета
 - repository_url - URL репозитория или путь к тестовому файлу
-- test_repo_mode - Режим работы с тестовым репозиторием
-- package_version	string - Версия анализируемого пакета
+- test_test_mode - Режим работы с тестовым репозиторием
+- package_version - Версия анализируемого пакета
 - output_image - Имя сгенерированного файла с изображением графа
-- ascii_tree	boolean - Режим вывода зависимостей в формате ASCII-дерева
-- max_depth	integer - Максимальная глубина анализа зависимостей
+- ascii_tree - Режим вывода зависимостей в формате ASCII-дерева
+- max_depth - Максимальная глубина анализа зависимостей
 
 ### Описание команд для сборки проекта и запуска тестов.
 Программа требует только стандартные библиотеки Python: csv, sys, os. Тестирование проводится путем запуска приложения с передачей конфигурационного CSV-файла в качестве аргумента командной строки.
 
 ### Примеры использования.
 Результат работы программы
+<img width="1877" height="291" alt="image" src="https://github.com/user-attachments/assets/9b2c1956-a7d1-4499-99cd-c33bebedd7f4" />
 
 Результат работы программы с выводом ошибки имени пакета
-
+<img width="1902" height="103" alt="image" src="https://github.com/user-attachments/assets/af3130d9-76c5-4440-a6d0-26d8d6cc23d4" />
 
 Результат работы программы с выводом ошибки в URL репозитория
-
+<img width="1899" height="76" alt="image" src="https://github.com/user-attachments/assets/ef6319ed-eea1-476b-85bd-11d1b169d4a8" />
 
 Результат работы программы с выводом ошибки в режиме тестирования
-
+<img width="1841" height="77" alt="image" src="https://github.com/user-attachments/assets/b2fdbfd6-9136-495d-acf9-492340763774" />
 
 Результат работы программы с выводом ошибки в версии пакета
-
+<img width="1819" height="77" alt="image" src="https://github.com/user-attachments/assets/c154bc09-5da4-405d-b76f-1362262fd128" />
 
 Результат работы программы с выводом ошибки в имени выходного файла
-
+<img width="1887" height="75" alt="image" src="https://github.com/user-attachments/assets/b34a9488-d8e3-406a-b565-3c0bfcb530df" />
 
 Результат работы программы с выводом ошибки в ASCII режиме
-
+<img width="1861" height="80" alt="image" src="https://github.com/user-attachments/assets/02bb410f-7740-41bc-ac19-c6b48a9f9aac" />
 
 Результат работы программы с выводом ошибки в максимальной глубине
-
+<img width="1838" height="77" alt="image" src="https://github.com/user-attachments/assets/d5104591-2854-4550-9c91-4f8a84d24e2c" />
 
 Результат работы программы с выводом корректной конфигурации
-
+<img width="748" height="224" alt="image" src="https://github.com/user-attachments/assets/5861a6ff-a649-4859-8736-19116442cae8" />
 
 
 
