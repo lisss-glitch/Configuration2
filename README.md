@@ -44,29 +44,30 @@
 
 ### Примеры использования.
 Результат работы программы
+
 Результат работы программы с выводом ошибки имени пакета
-<img width="1458" height="90" alt="image" src="https://github.com/user-attachments/assets/9a3f4b12-a833-4d02-9c6b-b8f745cc33e6" />
+
 
 Результат работы программы с выводом ошибки в URL репозитория
-<img width="1727" height="70" alt="image" src="https://github.com/user-attachments/assets/fd0a094e-8b5c-4417-9dbd-60fd47a31a9b" />
+
 
 Результат работы программы с выводом ошибки в режиме тестирования
-<img width="1755" height="75" alt="image" src="https://github.com/user-attachments/assets/0d2e858c-afea-4c9b-a92b-09dd5ab84531" />
+
 
 Результат работы программы с выводом ошибки в версии пакета
-<img width="1666" height="67" alt="image" src="https://github.com/user-attachments/assets/6f2b4113-cf9d-43ca-96a2-8ea42b75ff08" />
+
 
 Результат работы программы с выводом ошибки в имени выходного файла
-<img width="1698" height="67" alt="image" src="https://github.com/user-attachments/assets/0d720f60-770a-4b11-86f7-e3e43546cb23" />
+
 
 Результат работы программы с выводом ошибки в ASCII режиме
-<img width="1704" height="48" alt="image" src="https://github.com/user-attachments/assets/a0674d22-2bc5-4aeb-98a2-a0d6006054b2" />
+
 
 Результат работы программы с выводом ошибки в максимальной глубине
-<img width="1658" height="70" alt="image" src="https://github.com/user-attachments/assets/1e6f11f3-dfdf-4a77-9242-f9d02d24ed55" />
+
 
 Результат работы программы с выводом корректной конфигурации
-<img width="1594" height="229" alt="image" src="https://github.com/user-attachments/assets/8618bcde-1352-418c-84ba-1e307a1c7d2b" />
+
 
 
 
