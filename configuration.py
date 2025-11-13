@@ -1,0 +1,362 @@
+import csv  # для работы с CSV файлами
+import sys  # для работы с аргументами командной строки
+import os  # для работы с файловой системой
+import json  # для работы с JSON данными
+import urllib.request  # для выполнения HTTP запросов
+import urllib.error  # для обработки ошибок HTTP
+
+
+class ConfigValidator:
+    def __init__(self):
+        self.required_params = [  # список обязательных параметров конфигурации
+            "package_name",
+            "repository_url",
+            "test_repo_mode",
+            "package_version",
+            "output_image",
+            "ascii_tree",
+            "max_depth"
+        ]
+
+    def validate_package_name(self, value):
+        if not value.strip():  # проверка что имя пакета не пустое
+            return "Имя пакета не может быть пустым"
+        return None
+
+    def validate_repository_url(self, value):
+        if not value.strip():  # проверка что URL репозитория не пустой
+            return "URL репозитория не может быть пустым"
+        return None
+
+    def validate_test_repo_mode(self, value):
+        normalized_value = value.lower()  # нормализация значения к нижнему регистру
+        if normalized_value not in ["true", "false"]:  # проверка допустимых значений
+            return "test_repo_mode должен быть 'true' или 'false'"
+        return None
+
+    def validate_package_version(self, value):
+        if not value.strip():  # проверка что версия пакета не пустая
+            return "Версия пакета не может быть пустой"
+        return None
+
+    def validate_output_image(self, value):
+        if not value.strip():  # проверка что имя файла не пустое
+            return "Имя выходного файла изображения не может быть пустым"
+        forbidden_chars = ['/', '\\', ':', '*', '?', '"', '<', '>', '|']  # запрещенные символы в имени файла
+        if any(char in value for char in forbidden_chars):  # проверка на наличие запрещенных символов
+            return "Имя файла содержит недопустимые символы"
+        return None
+
+    def validate_ascii_tree(self, value):
+        normalized_value = value.lower()  # нормализация значения к нижнему регистру
+        if normalized_value not in ["true", "false"]:  # проверка допустимых значений
+            return "ascii_tree должен быть 'true' или 'false'"
+        return None
+
+    def validate_max_depth(self, value):
+        try:
+            depth = int(value)  # попытка преобразовать значение в целое число
+            if depth <= 0:  # проверка что глубина положительная
+                return "max_depth должен быть положительным целым числом"
+        except ValueError:  # обработка ошибки преобразования
+            return "max_depth должен быть целым числом"
+        return None
+
+
+def read_config_file(file_path):
+    """Читает CSV конфигурационный файл"""
+    if not os.path.exists(file_path):  # проверка существования файла
+        print(f"Ошибка: Конфигурационный файл '{file_path}' не найден")
+        print("Пожалуйста, проверьте существует ли файл и правильный ли указан путь.")
+        return None
+
+    config = {}  # словарь для хранения конфигурации
+    try:
+        with open(file_path, 'r', encoding='utf-8') as file:  # открытие файла для чтения
+            reader = csv.reader(file)  # создание CSV ридера
+            for row in reader:  # чтение файла построчно
+                if not row or len(row) < 2 or row[0].strip().startswith('#'):  # пропуск пустых строк и комментариев
+                    continue
+                param_name = row[0].strip()  # извлечение имени параметра
+                param_value = row[1].strip()  # извлечение значения параметра
+                config[param_name] = param_value  # сохранение параметра в словаре
+        return config
+    except Exception as e:  # обработка исключений при чтении файла
+        print(f"Ошибка чтения конфигурационного файла: {e}")
+        return None
+
+
+def validate_config(config, validator):
+    errors = []  # список для хранения ошибок
+    for param in validator.required_params:  # проверка наличия обязательных параметров
+        if param not in config:
+            errors.append(f"Отсутствует обязательный параметр: {param}")
+
+    validation_methods = {  # словарь методов валидации для каждого параметра
+        "package_name": validator.validate_package_name,
+        "repository_url": validator.validate_repository_url,
+        "test_repo_mode": validator.validate_test_repo_mode,
+        "package_version": validator.validate_package_version,
+        "output_image": validator.validate_output_image,
+        "ascii_tree": validator.validate_ascii_tree,
+        "max_depth": validator.validate_max_depth
+    }
+
+    for param_name, validation_func in validation_methods.items():  # валидация каждого параметра
+        if param_name in config:
+            error = validation_func(config[param_name])  # вызов метода валидации
+            if error:
+                errors.append(f"{param_name}: {error}")  # добавление ошибки в список
+
+    return errors  # возврат списка ошибок
+
+
+def parse_simple_toml(file_path):
+    """Парсит зависимости из TOML файла для тестового режима"""
+    if not os.path.exists(file_path):  # проверка существования файла
+        print(f"Ошибка: TOML файл '{file_path}' не найден")
+        return None
+
+    dependencies = []  # список для хранения зависимостей
+    try:
+        with open(file_path, 'r', encoding='utf-8') as file:  # открытие TOML файла
+            lines = file.readlines()  # чтение всех строк файла
+            in_dependencies_section = False  # флаг нахождения в секции зависимостей
+            found_dependencies = False  # флаг найденных зависимостей
+
+            for line in lines:  # обработка каждой строки файла
+                line = line.strip()  # удаление пробелов в начале и конце
+                if not line or line.startswith('#'):  # пропуск пустых строк и комментариев
+                    continue
+                if line == '[dependencies]':  # обнаружение секции зависимостей
+                    in_dependencies_section = True
+                    continue
+                if line.startswith('[') and in_dependencies_section:  # обнаружение новой секции (конец зависимостей)
+                    break
+                if in_dependencies_section and '=' in line:  # обработка строки с зависимостью
+                    dep_name = line.split('=')[0].strip()  # извлечение имени зависимости
+                    dependencies.append(dep_name)  # добавление зависимости в список
+                    found_dependencies = True
+
+        if not found_dependencies:  # если зависимости не найдены
+            print("В TOML файле не найдено зависимостей")
+
+        return dependencies
+    except Exception as e:  # обработка исключений при парсинге
+        print(f"Ошибка парсинга TOML файла: {e}")
+        return None
+
+
+def get_cargo_dependencies_from_crates_io(package_name, package_version):
+    """Получает зависимости через API crates.io"""
+    try:
+        # Получаем зависимости для конкретной версии
+        deps_url = f"https://crates.io/api/v1/crates/{package_name}/{package_version}/dependencies"  # формирование URL
+
+        req = urllib.request.Request(  # создание HTTP запроса
+            deps_url,
+            headers={  # установка заголовков
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                'Accept': 'application/json'
+            }
+        )
+
+        with urllib.request.urlopen(req) as deps_response:  # выполнение HTTP запроса
+            deps_data = json.loads(deps_response.read().decode('utf-8'))  # парсинг JSON ответа
+
+        # Извлекаем имена зависимостей
+        dependencies = []  # список для хранения зависимостей
+        if 'dependencies' in deps_data:  # проверка наличия секции зависимостей в ответе
+            for dep in deps_data['dependencies']:  # обработка каждой зависимости
+                # Берем только обычные зависимости (не dev/build)
+                if dep.get('kind') in [None, 'normal']:  # фильтрация по типу зависимости
+                    dependencies.append({  # добавление зависимости в список
+                        'name': dep['crate_id'],
+                        'version': dep.get('req', '*')
+                    })
+
+        return dependencies
+
+    except urllib.error.HTTPError as e:  # обработка HTTP ошибок
+        if e.code == 404:  # если пакет не найден
+            print(f"Пакет '{package_name}' версии '{package_version}' не найден на crates.io")
+            return None
+        else:
+            print(f"HTTP Ошибка {e.code}: {e.reason}")
+            return None
+    except urllib.error.URLError as e:  # обработка сетевых ошибок
+        print(f"Сетевая ошибка: {e}")
+        return None
+    except json.JSONDecodeError as e:  # обработка ошибок парсинга JSON
+        print(f"Ошибка парсинга JSON: {e}")
+        return None
+    except Exception as e:  # обработка прочих ошибок
+        print(f"Неожиданная ошибка: {e}")
+        return None
+
+
+def get_all_dependencies_recursive(package_name, package_version, test_repo_mode, max_depth, current_depth=1,
+                                   visited=None):
+    """Рекурсивно получает все зависимости до указанной глубины"""
+    if visited is None:  # инициализация множества посещенных пакетов
+        visited = set()
+
+    if current_depth > max_depth:  # проверка превышения максимальной глубины
+        return {}
+
+    # Создаем ключ для отслеживания пакетов с версиями
+    package_key = f"{package_name}@{package_version}"  # создание уникального ключа пакета
+    if package_key in visited:  # проверка на циклические зависимости
+        return {}
+    visited.add(package_key)  # добавление пакета в посещенные
+
+    # Получаем прямые зависимости
+    if test_repo_mode.lower() == "true":  # работа в тестовом режиме
+        # В тестовом режиме возвращаем пустые зависимости для всех кроме корневого пакета
+        if current_depth == 1:  # только для корневого пакета
+            direct_deps = parse_simple_toml(package_name)  # В тестовом режиме package_name - это путь к файлу
+            if direct_deps is None:  # если зависимости не найдены
+                return {}
+            # Преобразуем в формат словаря для единообразия
+            direct_deps_dict = [{'name': dep, 'version': '*'} for dep in direct_deps]  # форматирование зависимостей
+        else:
+            direct_deps_dict = []  # для непервого уровня - пустые зависимости
+    else:  # работа с реальным репозиторием
+        direct_deps_dict = get_cargo_dependencies_from_crates_io(package_name, package_version)  # получение зависимостей из crates.io
+        if direct_deps_dict is None:  # если зависимости не найдены
+            return {}
+
+    result = {package_name: direct_deps_dict}  # формирование результата
+
+    # Рекурсивно получаем зависимости для каждой зависимости
+    for dep in direct_deps_dict:  # обработка каждой прямой зависимости
+        # Для простоты используем ту же версию, что указана в требовании, или последнюю доступную
+        dep_name = dep['name']  # извлечение имени зависимости
+        dep_version = extract_version(dep['version']) or package_version  # извлечение версии зависимости
+
+        sub_deps = get_all_dependencies_recursive(  # рекурсивный вызов для подзависимостей
+            dep_name, dep_version, test_repo_mode,
+            max_depth, current_depth + 1, visited
+        )
+        result.update(sub_deps)  # объединение результатов
+
+    return result  # возврат всех зависимостей
+
+
+def extract_version(version_req):
+    """Извлекает версию из требования версии"""
+    import re  # импорт модуля регулярных выражений
+    match = re.search(r'[\d]+\.[\d]+\.[\d]+', version_req)  # поиск паттерна версии
+    return match.group(0) if match else "1.0.0"  # возврат найденной версии или версии по умолчанию
+
+
+def print_dependency_tree(dependencies_tree, package_name, current_depth=0, is_last=True, parent_prefix=""):
+    """Выводит дерево зависимостей в ASCII формате"""
+    if current_depth == 0:  # вывод корневого пакета
+        print(package_name)
+
+    deps = dependencies_tree.get(package_name, [])  # получение зависимостей текущего пакета
+    count = len(deps)  # количество зависимостей
+
+    for i, dep in enumerate(deps):  # обработка каждой зависимости
+        is_last_dep = (i == count - 1)  # проверка является ли зависимость последней
+
+        if current_depth == 0:  # формирование префикса для корневого уровня
+            prefix = "└── " if is_last_dep else "├── "
+        else:  # формирование префикса для вложенных уровней
+            prefix = parent_prefix + ("└── " if is_last else "├── ")
+
+        connector = "    " if is_last_dep else "│   "  # формирование соединителя
+
+        print(f"{prefix}{dep['name']} {dep['version']}")  # вывод зависимости
+
+        # Рекурсивно выводим поддерево
+        if dep['name'] in dependencies_tree:  # если у зависимости есть свои зависимости
+            print_dependency_tree(  # рекурсивный вывод поддерева
+                dependencies_tree, dep['name'], current_depth + 1,
+                is_last_dep, parent_prefix + connector
+            )
+
+
+def print_dependencies_flat(dependencies_tree, package_name):
+    """Выводит зависимости в плоском формате"""
+    for pkg, deps in dependencies_tree.items():  # обработка каждого пакета в дереве
+        if pkg == package_name:  # вывод прямых зависимостей корневого пакета
+            print(f"\nПрямые зависимости для {package_name}:")
+        else:  # вывод зависимостей других пакетов
+            print(f"\nЗависимости для {pkg}:")
+
+        if deps:  # если есть зависимости
+            for i, dep in enumerate(deps, 1):  # нумерованный вывод зависимостей
+                print(f"  {i}. {dep['name']} {dep['version']}")
+        else:  # если зависимостей нет
+            print("  (нет зависимостей)")
+
+
+def main():
+    if len(sys.argv) > 1:  # проверка наличия аргумента командной строки
+        config_file = sys.argv[1]  # использование переданного файла конфигурации
+        print(f"Используется конфигурационный файл: {config_file}")
+    else:  # использование файла по умолчанию
+        config_file = "configuration.csv"
+        print(f"Используется конфигурационный файл по умолчанию: {config_file}")
+
+    validator = ConfigValidator()  # создание валидатора конфигурации
+    config = read_config_file(config_file)  # чтение конфигурационного файла
+
+    if config is None:  # если файл не удалось прочитать
+        print("Не удалось прочитать конфигурацию. Завершение работы.")
+        sys.exit(1)  # завершение программы с ошибкой
+
+    errors = validate_config(config, validator)  # валидация конфигурации
+    if errors:  # если есть ошибки валидации
+        print("Ошибки конфигурации:")
+        for error in errors:  # вывод всех ошибок
+            print(f"  - {error}")
+        sys.exit(1)  # завершение программы с ошибкой
+
+
+    # Этап 2: Получение зависимостей
+    print("\n=== Этап 2: Сбор зависимостей ===")
+
+    package_name = config.get("package_name")  # получение имени пакета из конфигурации
+    repository_url = config.get("repository_url")  # получение URL репозитория
+    test_repo_mode = config.get("test_repo_mode")  # получение режима тестирования
+    package_version = config.get("package_version")  # получение версии пакета
+    ascii_tree = config.get("ascii_tree", "false").lower() == "true"  # получение флага ASCII дерева
+    max_depth = int(config.get("max_depth", 3))  # получение максимальной глубины
+
+    print(f"Поиск зависимостей для '{package_name}' версии '{package_version}'...")
+
+    # Получаем все зависимости рекурсивно
+    all_dependencies = get_all_dependencies_recursive(  # получение всех зависимостей
+        package_name, package_version, test_repo_mode, max_depth
+    )
+
+    if not all_dependencies:  # если зависимости не найдены
+        print(f"Зависимости не найдены для пакета '{package_name}' версии '{package_version}'")
+        print("Это может означать:")
+        print("  - Пакет не существует")
+        print("  - Версия не существует")
+        print("  - У пакета нет зависимостей")
+        print("  - Произошла сетевая ошибка")
+        sys.exit(1)  # завершение программы с ошибкой
+
+    if ascii_tree:  # если включен вывод в виде ASCII дерева
+        print(f"\nДерево зависимостей для пакета '{package_name}' версии '{package_version}' (максимальная глубина: {max_depth}):")
+        print_dependency_tree(all_dependencies, package_name)  # вывод дерева зависимостей
+    else:  # вывод в плоском формате
+        print(f"\nВсе зависимости для пакета '{package_name}' версии '{package_version}' (максимальная глубина: {max_depth}):")
+        print_dependencies_flat(all_dependencies, package_name)  # вывод зависимостей в плоском формате
+
+    total_deps = sum(len(deps) for deps in all_dependencies.values())  # подсчет общего количества зависимостей
+    unique_packages = len(all_dependencies)  # подсчет уникальных пакетов
+    print(f"\nИтоги:")  # вывод итоговой информации
+    print(f"  Всего найдено зависимостей: {total_deps}")
+    print(f"  Всего уникальных пакетов в дереве: {unique_packages}")
+
+    print("Этап 2 успешно завершен")  # сообщение о завершении этапа
+
+
+if __name__ == "__main__":
+    main()  # запуск основной функции
