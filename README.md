@@ -44,8 +44,6 @@
 
 ### Примеры использования.
 Результат работы программы
-<img width="694" height="229" alt="image" src="https://github.com/user-attachments/assets/086b6a99-b262-41b6-97cd-a43d60f49eec" />
-
 Результат работы программы с выводом ошибки имени пакета
 <img width="1458" height="90" alt="image" src="https://github.com/user-attachments/assets/9a3f4b12-a833-4d02-9c6b-b8f745cc33e6" />
 
