@@ -105,19 +105,18 @@
 ### Примеры использования.
 Результат работы программы
 <img width="1919" height="736" alt="image" src="https://github.com/user-attachments/assets/8ef0d14f-6f4c-4a8e-a0fa-1d34c19a6015" />
-
 Результат работы программы с выводом файла, который не существует
-
+<img width="1469" height="139" alt="image" src="https://github.com/user-attachments/assets/652c60b8-618b-48a8-8176-5de05d7cd8d4" />
 Результат работы программы с выводом пакета без зависимостей
-<img width="1903" height="302" alt="image" src="https://github.com/user-attachments/assets/f0080dec-73f2-4313-b60e-9e6cfdb099ab" />
+<img width="1464" height="296" alt="image" src="https://github.com/user-attachments/assets/bf662876-f3a6-47f0-8e7b-d1f6723d63fb" />
 Результат работы программы с выводом несуществующего пакета
-<img width="1826" height="255" alt="image" src="https://github.com/user-attachments/assets/52bd5e55-dddc-47cc-ad3b-967ea65d5d62" />
+<img width="1451" height="273" alt="image" src="https://github.com/user-attachments/assets/f19942f5-eedf-4044-b880-a60d57cd5310" />
 Результат работы программы с выводом несуществующей версии
-<img width="1819" height="257" alt="image" src="https://github.com/user-attachments/assets/ac6aaab6-381e-4f91-af75-a604c1800fce" />
+<img width="1467" height="272" alt="image" src="https://github.com/user-attachments/assets/62c1fb0a-0755-4767-b113-012dfd0169d9" />
 Результат работы программы с выводом пустого файла зависимостей для тестового режима
-<img width="1720" height="210" alt="image" src="https://github.com/user-attachments/assets/f3c4fd4e-75a3-45b1-9bbd-090814fa2f1b" />
+<img width="1461" height="232" alt="image" src="https://github.com/user-attachments/assets/729623e5-9e65-4691-85ca-a2c962d65830" />
 Результат работы программы с выводом для тестирования пустых зависимостей в тестовом режиме
-<img width="1815" height="252" alt="image" src="https://github.com/user-attachments/assets/068d2ea0-8da9-4ec7-91d9-20b9623f12bb" />
+<img width="1470" height="403" alt="image" src="https://github.com/user-attachments/assets/ddd2e2e2-7aa6-4276-936b-94abbdac1d40" />
 
 
 
