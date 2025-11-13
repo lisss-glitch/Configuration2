@@ -1,0 +1,8 @@
+parameter,value
+package_name,A
+repository_url,test_repository_simple.txt
+test_repo_mode,true
+package_version,1.0.0
+output_image,graph_simple.png
+ascii_tree,false
+max_depth,4

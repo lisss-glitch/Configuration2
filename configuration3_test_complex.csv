@@ -1,0 +1,8 @@
+parameter,value
+package_name,BASE
+repository_url,test_repository_complex.txt
+test_repo_mode,true
+package_version,1.0.0
+output_image,graph_complex.png
+ascii_tree,false
+max_depth,4
